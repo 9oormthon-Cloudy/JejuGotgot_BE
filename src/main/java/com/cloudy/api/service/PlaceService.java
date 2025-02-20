@@ -142,7 +142,7 @@ public class PlaceService {
             place.setName(it.getName());
             place.setImage(it.getImage());
             place.setAddress(it.getAddress());
-            place.setKeywords(List.of("웅장한", "귀여운", "맛있는"));
+            place.setKeywords(List.of(it.getKeyword1(), it.getKeyword2(), it.getKeyword3()));
             place.setType(it.getType());
             place.setDatBefore(3);
             place.setReview(false);
