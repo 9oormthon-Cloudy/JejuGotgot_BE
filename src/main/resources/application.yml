@@ -1,3 +1,7 @@
 spring:
   application:
     name: api
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/krampoline
