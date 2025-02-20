@@ -2,7 +2,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
 
   application:
     name: api
@@ -11,5 +11,6 @@ spring:
     password: root
     url: jdbc:mysql://localhost:3306/krampoline
 
-
-
+springdoc:
+  swagger-ui:
+    path: /api/swagger-ui/index.html
