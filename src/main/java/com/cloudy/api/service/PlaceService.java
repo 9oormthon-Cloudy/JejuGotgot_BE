@@ -1,0 +1,101 @@
+package com.cloudy.api.service;
+
+import com.cloudy.api.adapter.database.PlaceEntity;
+import com.cloudy.api.adapter.database.PlaceRepository;
+import com.cloudy.api.adapter.jeju.CongestionService;
+import com.cloudy.api.adapter.kakao.WeatherService;
+import com.cloudy.api.dto.GetPlaceInBoxResponse;
+import com.cloudy.api.dto.GetPlaceNearestResponse;
+import com.cloudy.api.dto.GetPlaceResponse;
+import com.cloudy.api.dto.ReplacePlace;
+import org.springframework.data.domain.Limit;
+import org.springframework.data.util.Pair;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class PlaceService {
+
+    private final PlaceRepository placeRepository;
+    private final CongestionService congestionService;
+    private final WeatherService weatherService;
+
+    public PlaceService(PlaceRepository placeRepository, CongestionService congestionService, WeatherService weatherService) {
+        this.placeRepository = placeRepository;
+        this.congestionService = congestionService;
+        this.weatherService = weatherService;
+    }
+
+    public GetPlaceNearestResponse getNearestPlace(double x, double y) {
+        return new GetPlaceNearestResponse(placeRepository.findNearest(x, y).getId());
+    }
+
+    public Integer getDistance(double x1, double y1, double x2, double y2) {
+        double dLat = Math.toRadians(y2 - y1);
+        double dLon = Math.toRadians(x2 - x1);
+
+        double a = Math.pow(Math.sin(dLat / 2), 2) +
+                Math.cos(Math.toRadians(y1)) * Math.cos(Math.toRadians(y2)) *
+                        Math.pow(Math.sin(dLon / 2), 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return (int) (6371 * c * 1000); // 결과를 미터(m)로 변환
+    }
+
+    public GetPlaceResponse getPlace(Integer id) {
+        var response = new GetPlaceResponse();
+        var place = this.placeRepository.findById(id).get();
+
+        response.setId(place.getId());
+        response.setName(place.getName());
+        response.setAddress(place.getAddress());
+        response.setX(place.getLongitude());
+        response.setY(place.getLatitude());
+        response.setImage(place.getImage());
+        response.setBookmark(place.getBookmark());
+        response.setCongestion(congestionService.getCongestion(place.getLongitude(), place.getLatitude()));
+
+        Pair<String, Float> weather = weatherService.getWeather(place.getLongitude(), place.getLatitude());
+        response.setWeather(weather.getFirst());
+        response.setTemperature(weather.getSecond());
+
+        List<PlaceEntity> replaces = this.placeRepository.findAllByType(place.getType(), Limit.of(5));
+
+        response.setReplace(replaces.stream().map(it -> {
+            var replace = new ReplacePlace();
+            replace.setId(it.getId());
+            replace.setName(it.getName());
+            replace.setImage(it.getImage());
+            replace.setBookmark(it.getBookmark());
+            replace.setDistance(getDistance(it.getLongitude(), it.getLatitude(), place.getLongitude(), place.getLatitude()));
+            return replace;
+        }).toList());
+
+        return response;
+    }
+
+    public void addBookmark(Integer id) {
+        var place = this.placeRepository.findById(id).get();
+        place.setBookmark(true);
+        placeRepository.save(place);
+    }
+
+    public void deleteBookmark(Integer id) {
+        var place = this.placeRepository.findById(id).get();
+        place.setBookmark(false);
+        placeRepository.save(place);
+    }
+
+    public List<GetPlaceInBoxResponse> getPlaceInBox(double minX, double maxX, double minY, double maxY) {
+        return this.placeRepository.findInBox(minY, maxY, minX, maxX).stream().map(it -> {
+            var response = new GetPlaceInBoxResponse();
+            response.setId(it.getId());
+            response.setX(it.getLongitude());
+            response.setY(it.getLatitude());
+            response.setBookmark(it.getBookmark());
+            response.setStatus(this.congestionService.getCongestion(it.getLongitude(), it.getLatitude()).getStatus());
+            return response;
+        }).toList();
+    }
+}
