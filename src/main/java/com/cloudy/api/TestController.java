@@ -2,16 +2,14 @@ package com.cloudy.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriBuilder;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.X509TrustManager;
-import java.security.cert.X509Certificate;
 
 @RestController
+@RequestMapping("/api")
 public class TestController {
 
     @GetMapping("/health")
