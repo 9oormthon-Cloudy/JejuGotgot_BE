@@ -21,6 +21,7 @@ public class WeatherService {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("krmp-proxy.9rum.cc", 3128));
         factory.setProxy(proxy);
+
         this.restTemplate = new RestTemplate(factory);
 //        this.restTemplate = new RestTemplate();
     }

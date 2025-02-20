@@ -1,5 +1,6 @@
 package com.cloudy.api.adapter.database;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -33,4 +34,20 @@ public class PlaceEntity {
     Double longitude;
 
     Boolean bookmark;
+
+    @Column(name = "out_now")
+    Integer outNow;
+
+    @Column(name = "in_now")
+    Integer inNow;
+
+    @Column(name = "out_3avg")
+    Integer out3Avg;
+
+    @Column(name = "in_3avg")
+    Integer in3Avg;
+
+    String weather;
+
+    Float temperature;
 }

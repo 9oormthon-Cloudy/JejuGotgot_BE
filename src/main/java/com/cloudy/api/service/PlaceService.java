@@ -4,10 +4,7 @@ import com.cloudy.api.adapter.database.PlaceEntity;
 import com.cloudy.api.adapter.database.PlaceRepository;
 import com.cloudy.api.adapter.jeju.CongestionService;
 import com.cloudy.api.adapter.kakao.WeatherService;
-import com.cloudy.api.dto.GetPlaceInBoxResponse;
-import com.cloudy.api.dto.GetPlaceNearestResponse;
-import com.cloudy.api.dto.GetPlaceResponse;
-import com.cloudy.api.dto.ReplacePlace;
+import com.cloudy.api.dto.*;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -54,11 +51,24 @@ public class PlaceService {
         response.setY(place.getLatitude());
         response.setImage(place.getImage());
         response.setBookmark(place.getBookmark());
-        response.setCongestion(congestionService.getCongestion(place.getLongitude(), place.getLatitude()));
+        var congestion = new Congestion();
+        congestion.setInNow(place.getInNow());
+        congestion.setOutNow(place.getOutNow());
+        congestion.setIn3Avg(place.getIn3Avg());
+        congestion.setOut3Avg(place.getOut3Avg());
 
-        Pair<String, Float> weather = weatherService.getWeather(place.getLongitude(), place.getLatitude());
-        response.setWeather(weather.getFirst());
-        response.setTemperature(weather.getSecond());
+        if (congestion.getOutNow() > 100) {
+            congestion.setStatus("혼잡");
+        } else if (congestion.getOutNow() > 20) {
+            congestion.setStatus("보통");
+        } else {
+            congestion.setStatus("여유");
+        }
+
+
+        response.setCongestion(congestion);
+        response.setWeather(place.getWeather());
+        response.setTemperature(place.getTemperature());
 
         List<PlaceEntity> replaces = this.placeRepository.findAllByType(place.getType(), Limit.of(5));
 
@@ -94,7 +104,20 @@ public class PlaceService {
             response.setX(it.getLongitude());
             response.setY(it.getLatitude());
             response.setBookmark(it.getBookmark());
-            response.setStatus(this.congestionService.getCongestion(it.getLongitude(), it.getLatitude()).getStatus());
+
+            var congestion = new Congestion();
+            congestion.setInNow(it.getInNow());
+            congestion.setOutNow(it.getOutNow());
+            congestion.setIn3Avg(it.getIn3Avg());
+            congestion.setOut3Avg(it.getOut3Avg());
+            if (congestion.getOutNow() > 100) {
+                congestion.setStatus("혼잡");
+            } else if (congestion.getOutNow() > 20) {
+                congestion.setStatus("보통");
+            } else {
+                congestion.setStatus("여유");
+            }
+            response.setStatus(congestion.getStatus());
             return response;
         }).toList();
     }
