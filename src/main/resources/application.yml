@@ -2,7 +2,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
 
   application:
     name: api
@@ -13,4 +13,6 @@ spring:
 
 springdoc:
   swagger-ui:
-    path: /api/swagger-ui/index.html
+    path: /api/doc2
+    use-root-path: true
+    disable-swagger-default-url: true

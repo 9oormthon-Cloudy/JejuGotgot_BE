@@ -121,4 +121,35 @@ public class PlaceService {
             return response;
         }).toList();
     }
+
+    // search place]
+    public SearchPlaceResponse searchPlace(String keyword) {
+        var response = new SearchPlaceResponse();
+        PlaceEntity place = this.placeRepository.findInKeyword(keyword).orElse(null);
+        if (place != null) {
+            response.setId(place.getId());
+        } else {
+            response.setId(null);
+        }
+        return response;
+    }
+
+    // get bookmark place
+    public List<GetPlaceBookmark> getPlaceBookmark() {
+        return this.placeRepository.findInBookmark().stream().map(it -> {
+            var place = new GetPlaceBookmark();
+            place.setId(it.getId());
+            place.setName(it.getName());
+            place.setImage(it.getImage());
+            place.setAddress(it.getAddress());
+            place.setKeywords(List.of("웅장한", "귀여운", "맛있는"));
+            place.setType(it.getType());
+            place.setDatBefore(3);
+            place.setReview(false);
+            return place;
+        }).toList();
+    }
+
+
+    // get
 }

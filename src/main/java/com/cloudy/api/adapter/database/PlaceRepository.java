@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<PlaceEntity, Integer> {
 
@@ -24,4 +25,12 @@ public interface PlaceRepository extends JpaRepository<PlaceEntity, Integer> {
             "AND longitude BETWEEN :minX AND :maxX LIMIT 30",
             nativeQuery = true)
     List<PlaceEntity> findInBox(double minY, double maxY, double minX, double maxX);
+
+    @Query(value = "select * FROM place p " +
+            "WHERE p.bookmark = true LIMIT 30", nativeQuery = true)
+    List<PlaceEntity> findInBookmark();
+
+    @Query(value = "select * FROM place p " +
+            "WHERE name = :keyword LIMIT 1", nativeQuery = true)
+    Optional<PlaceEntity> findInKeyword(String keyword);
 }

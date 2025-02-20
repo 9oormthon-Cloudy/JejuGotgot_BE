@@ -2,9 +2,7 @@ package com.cloudy.api;
 
 import com.cloudy.api.adapter.database.PlaceEntity;
 import com.cloudy.api.adapter.database.PlaceRepository;
-import com.cloudy.api.dto.GetPlaceInBoxResponse;
-import com.cloudy.api.dto.GetPlaceNearestResponse;
-import com.cloudy.api.dto.GetPlaceResponse;
+import com.cloudy.api.dto.*;
 import com.cloudy.api.service.PlaceService;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.ResponseEntity;
@@ -84,5 +82,15 @@ public class ApiController {
     public ResponseEntity<Void> deleteBookmark(@PathVariable("id") String id) {
         placeService.deleteBookmark(Integer.parseInt(id));
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("place/bookmark")
+    public ResponseEntity<List<GetPlaceBookmark>> getPlaceBookmark() {
+        return ResponseEntity.ok().body(placeService.getPlaceBookmark());
+    }
+
+    @GetMapping("place/search")
+    public ResponseEntity<SearchPlaceResponse> searchPlace(@RequestParam("query") String keyword) {
+        return ResponseEntity.ok().body(this.placeService.searchPlace(keyword));
     }
 }
